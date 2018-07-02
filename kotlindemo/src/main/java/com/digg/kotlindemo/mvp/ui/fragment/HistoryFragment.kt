@@ -39,8 +39,7 @@ import com.jess.arms.utils.ArmsUtils
 class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
     companion object {
         fun newInstance(): HistoryFragment {
-            val fragment = HistoryFragment()
-            return fragment
+            return HistoryFragment()
         }
     }
 
