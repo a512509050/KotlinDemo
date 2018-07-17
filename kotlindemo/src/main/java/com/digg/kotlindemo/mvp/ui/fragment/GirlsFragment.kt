@@ -2,22 +2,24 @@ package com.digg.kotlindemo.mvp.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Message
-import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import com.jess.arms.base.BaseFragment
-import com.jess.arms.di.component.AppComponent
-import com.jess.arms.utils.ArmsUtils
-
+import com.chad.library.adapter.base.loadmore.SimpleLoadMoreView
+import com.digg.kotlindemo.R
 import com.digg.kotlindemo.di.component.DaggerGirlsComponent
 import com.digg.kotlindemo.di.module.GirlsModule
 import com.digg.kotlindemo.mvp.contract.GirlsContract
 import com.digg.kotlindemo.mvp.presenter.GirlsPresenter
-
-import com.digg.kotlindemo.R
+import com.digg.kotlindemo.mvp.ui.adapter.GirlsAdapter
+import com.jess.arms.base.BaseFragment
+import com.jess.arms.di.component.AppComponent
+import com.jess.arms.utils.ArmsUtils
+import kotlinx.android.synthetic.main.fragment_list.*
+import kotlinx.android.synthetic.main.include_title.*
+import javax.inject.Inject
 
 
 /**
@@ -41,11 +43,22 @@ import com.digg.kotlindemo.R
  * Date : 2018-7-2 15:22:15
  * </pre>
  */
-class GirlsFragment : BaseFragment<GirlsPresenter>(), GirlsContract.View {
+class GirlsFragment : BaseFragment<GirlsPresenter>(), GirlsContract.View, SwipeRefreshLayout.OnRefreshListener {
+
+    @Inject
+    lateinit var mAdapter: GirlsAdapter
+
+    private var mPageNo = 1
+
+    override fun onRefresh() {
+        mAdapter.setEnableLoadMore(false)
+        mPageNo = 1
+        mPresenter?.getData(mPageNo, true)
+    }
+
     companion object {
         fun newInstance(): GirlsFragment {
-            val fragment = GirlsFragment()
-            return fragment
+            return GirlsFragment()
         }
     }
 
@@ -61,11 +74,26 @@ class GirlsFragment : BaseFragment<GirlsPresenter>(), GirlsContract.View {
     }
 
     override fun initView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_girls, container, false);
+        return inflater.inflate(R.layout.fragment_list, container, false)
     }
 
     override fun initData(savedInstanceState: Bundle?) {
+        toolbar_title.text = "福利"
+        toolbar_back.visibility = View.GONE
 
+        mRecyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        mRecyclerView.adapter = mAdapter
+
+        mRefreshLayout.setOnRefreshListener(this)
+
+        mPresenter?.getData(1, true)
+
+        mAdapter.setLoadMoreView(SimpleLoadMoreView())
+
+        mAdapter.setOnLoadMoreListener({
+            mPageNo++
+            mPresenter?.getData(mPageNo, false)
+        }, mRecyclerView)
     }
 
     /**
@@ -91,10 +119,6 @@ class GirlsFragment : BaseFragment<GirlsPresenter>(), GirlsContract.View {
      *   }
      *}
      *
-     *
-     *
-     *
-     *
      * // call setData(Object):
      * val data = Message();
      * data.what = 0;
@@ -113,7 +137,8 @@ class GirlsFragment : BaseFragment<GirlsPresenter>(), GirlsContract.View {
     }
 
     override fun hideLoading() {
-
+        mRefreshLayout.isRefreshing = false
+        mAdapter.setEnableLoadMore(true)
     }
 
     override fun showMessage(message: String) {

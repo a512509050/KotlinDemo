@@ -1,11 +1,9 @@
 package com.digg.kotlindemo.mvp.model.api.service
 
-import com.digg.kotlindemo.mvp.model.entity.Article
-import com.digg.kotlindemo.mvp.model.entity.BaseBean
-import com.digg.kotlindemo.mvp.model.entity.LoginBean
-import com.digg.kotlindemo.mvp.model.entity.RegisterBean
+import com.digg.kotlindemo.mvp.model.entity.*
 import io.reactivex.Observable
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -32,10 +30,17 @@ interface CommonService {
             @Query("password") password: String
     ): Observable<LoginBean>
 
-    @GET("data")
+    @GET("data/{type}/{pageSize}/{pageNumber}")
     fun getData(
-            @Query("type") type: String,
-            @Query("pageSize") pageSize: String,
-            @Query("pageNumber") pageNumber: String
-    ): Observable<BaseBean<Article>>
+            @Path("type") type: String,
+            @Path("pageSize") pageSize: Int,
+            @Path("pageNumber") pageNumber: Int
+    ): Observable<BaseBean<List<Article>>>
+
+    @GET("history/content/{pageSize}/{pageNumber}")
+    fun getHistoryList(
+            @Path("pageSize") pageSize: Int,
+            @Path("pageNumber") pageNumber: Int
+    ): Observable<BaseBean<List<History>>>
+
 }

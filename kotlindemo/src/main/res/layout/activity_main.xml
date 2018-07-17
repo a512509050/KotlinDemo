@@ -17,6 +17,6 @@
         android:layout_width="match_parent"
         android:translationZ="@dimen/dp_4"
         app:menu="@menu/bottom_menu"
-        android:layout_height="?attr/actionBarSize" />
+        android:layout_height="?android:attr/actionBarSize" />
 
 </LinearLayout>

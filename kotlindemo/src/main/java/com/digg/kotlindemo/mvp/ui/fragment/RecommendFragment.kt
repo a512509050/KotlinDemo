@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.digg.kotlindemo.R
 import com.digg.kotlindemo.di.component.DaggerRecommendComponent
 import com.digg.kotlindemo.di.module.RecommendModule
@@ -13,6 +14,7 @@ import com.digg.kotlindemo.mvp.presenter.RecommendPresenter
 import com.jess.arms.base.BaseFragment
 import com.jess.arms.di.component.AppComponent
 import com.jess.arms.utils.ArmsUtils
+import kotlinx.android.synthetic.main.fragment_recommend.*
 
 
 /**
@@ -60,7 +62,16 @@ class RecommendFragment : BaseFragment<RecommendPresenter>(), RecommendContract.
     }
 
     override fun initData(savedInstanceState: Bundle?) {
+//        ArmsUtils.obtainAppComponentFromContext(context)
+//                .imageLoader().loadImage(context, ImageConfigImpl.builder()
+//                        .url("http://ww1.sinaimg.cn/large/0065oQSqly1fsfq1ykabxj30k00pracv.jpg")
+//                        .placeholder(R.mipmap.ic_launcher)
+//                        .imageView(imageView)
+//                        .build())
 
+        Glide.with(activity!!)
+                .load("http://ww1.sinaimg.cn/large/0065oQSqly1fsfq1ykabxj30k00pracv.jpg")
+                .into(imageView)
     }
 
     /**

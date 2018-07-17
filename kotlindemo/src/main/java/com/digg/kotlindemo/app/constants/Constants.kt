@@ -13,5 +13,15 @@ interface Constants {
          * tab切换fragment
          */
         const val FRAGMENT_REPLACE = "activity_fragment_replace"
+
+        /**
+         * List请求数量
+         */
+        const val PAGE_SIZE = 10
+
+        /**
+         * 通用界面跳转type
+         */
+        const val INTENT_COMMON_KEY = "INTENT_COMMON_KEY"
     }
 }

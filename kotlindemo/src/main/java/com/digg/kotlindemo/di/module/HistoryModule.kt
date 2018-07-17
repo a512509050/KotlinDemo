@@ -1,12 +1,12 @@
 package com.digg.kotlindemo.di.module
 
-import com.jess.arms.di.scope.FragmentScope
-
-import dagger.Module
-import dagger.Provides
-
 import com.digg.kotlindemo.mvp.contract.HistoryContract
 import com.digg.kotlindemo.mvp.model.HistoryModel
+import com.digg.kotlindemo.mvp.model.entity.History
+import com.digg.kotlindemo.mvp.ui.adapter.HistoryAdapter
+import com.jess.arms.di.scope.FragmentScope
+import dagger.Module
+import dagger.Provides
 
 /**
  * <pre>
@@ -20,13 +20,18 @@ import com.digg.kotlindemo.mvp.model.HistoryModel
 class HistoryModule(private val view: HistoryContract.View) {
     @FragmentScope
     @Provides
-    fun provideHistoryView(): HistoryContract.View {
-        return this.view
-    }
+    fun provideHistoryView(): HistoryContract.View = this.view
 
     @FragmentScope
     @Provides
-    fun provideHistoryModel(model: HistoryModel): HistoryContract.Model {
-        return model
-    }
+    fun provideHistoryModel(model: HistoryModel): HistoryContract.Model = model
+
+    @FragmentScope
+    @Provides
+    fun provideData() = mutableListOf<History>()
+
+    @FragmentScope
+    @Provides
+    fun provideAdapter(data: MutableList<History>) = HistoryAdapter(data)
+
 }

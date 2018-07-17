@@ -1,18 +1,31 @@
 package com.digg.kotlindemo.mvp.ui.fragment
 
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blankj.utilcode.util.SizeUtils
+import com.chad.library.adapter.base.loadmore.SimpleLoadMoreView
 import com.digg.kotlindemo.R
+import com.digg.kotlindemo.app.constants.Constants
 import com.digg.kotlindemo.di.component.DaggerHistoryComponent
 import com.digg.kotlindemo.di.module.HistoryModule
 import com.digg.kotlindemo.mvp.contract.HistoryContract
+import com.digg.kotlindemo.mvp.model.entity.History
 import com.digg.kotlindemo.mvp.presenter.HistoryPresenter
+import com.digg.kotlindemo.mvp.ui.activity.WebActivity
+import com.digg.kotlindemo.mvp.ui.adapter.HistoryAdapter
 import com.jess.arms.base.BaseFragment
 import com.jess.arms.di.component.AppComponent
 import com.jess.arms.utils.ArmsUtils
+import kotlinx.android.synthetic.main.fragment_list.*
+import kotlinx.android.synthetic.main.include_title.*
+import javax.inject.Inject
 
 
 /**
@@ -36,7 +49,19 @@ import com.jess.arms.utils.ArmsUtils
  * Date : 2018-7-2 15:22:37
  * </pre>
  */
-class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
+class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View, SwipeRefreshLayout.OnRefreshListener {
+
+    @Inject
+    lateinit var mAdapter: HistoryAdapter
+
+    private var mPageNo = 1
+
+    override fun onRefresh() {
+        mAdapter.setEnableLoadMore(false)
+        mPageNo = 1
+        mPresenter?.getData(mPageNo, true)
+    }
+
     companion object {
         fun newInstance(): HistoryFragment {
             return HistoryFragment()
@@ -55,10 +80,43 @@ class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
     }
 
     override fun initView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_history, container, false)
+        return inflater.inflate(R.layout.fragment_list, container, false)
     }
 
     override fun initData(savedInstanceState: Bundle?) {
+        toolbar_title.text = "往期推荐"
+        toolbar_back.visibility = View.GONE
+
+        mRecyclerView.layoutManager = LinearLayoutManager(context)
+        mRecyclerView.adapter = mAdapter
+
+        mRecyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect?, view: View?, parent: RecyclerView?, state: RecyclerView.State?) {
+                super.getItemOffsets(outRect, view, parent, state)
+                outRect?.set(0, 0, 0, SizeUtils.dp2px(10f))
+            }
+        })
+
+        mPresenter?.getData(1, true)
+
+        mRefreshLayout.setOnRefreshListener(this)
+
+        mAdapter.setLoadMoreView(SimpleLoadMoreView())
+
+        mAdapter.setOnItemClickListener { adapter, _, position ->
+            run {
+                val intent = Intent()
+                intent.putExtra(Constants.INTENT_COMMON_KEY, (adapter.data[position] as History).content)
+                intent.setClass(context, WebActivity::class.java)
+                launchActivity(intent)
+                intent
+            }
+        }
+
+        mAdapter.setOnLoadMoreListener({
+            mPageNo++
+            mPresenter?.getData(mPageNo, false)
+        }, mRecyclerView)
 
     }
 
@@ -107,7 +165,8 @@ class HistoryFragment : BaseFragment<HistoryPresenter>(), HistoryContract.View {
     }
 
     override fun hideLoading() {
-
+        mRefreshLayout.isRefreshing = false
+        mAdapter.setEnableLoadMore(true)
     }
 
     override fun showMessage(message: String) {

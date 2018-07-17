@@ -50,9 +50,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'me.jessyan:arms:2.4.1'
     //view
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     kapt(rootProject.ext.dependencies["butterknife-compiler"]) {
         exclude module: 'support-annotations'
     }
+    implementation rootProject.ext.dependencies["cardview-v7"]
+    implementation rootProject.ext.dependencies["agentweb"]
     //tools
     kapt rootProject.ext.dependencies["dagger2-compiler"]
     implementation rootProject.ext.dependencies["utils"]
